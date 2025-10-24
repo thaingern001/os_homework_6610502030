@@ -6,6 +6,9 @@ RESULTS = Path("results")
 RESULTS.mkdir(exist_ok=True)
 CSV = RESULTS / "times.csv"
 
+# NS = []
+# for i in range(2,17):
+#     NS.append(10**i + 3)
 NS = [1_000_003, 10_000_019, 100_000_007]  # ตัวอย่าง n (แก้เพิ่มได้)
 PROCS_LIST = [1, 2, 4, 8]                   # จำนวน process สำหรับ MPI
 
