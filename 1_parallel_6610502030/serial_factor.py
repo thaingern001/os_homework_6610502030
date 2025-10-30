@@ -1,6 +1,11 @@
 from math import isqrt
 import time
 import os 
+import sys, resource
+
+def mem_mb_peak():
+    r = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return r / (1024*1024) if sys.platform == "darwin" else r / 1024.0
 
 
 def factorize(n):
@@ -20,7 +25,8 @@ def main():
     factors = factorize(n)
     duration = time.perf_counter() - t0
     
-    print(f"n={n}  factors={len(factors)}  time={duration:.6f}s")
+    # print(f"n={n}  factors={len(factors)}  time={duration:.6f}s")
+    print(f"n={n}  factors={len(factors)}  time={duration:.6f}s  mem_max_mb={mem_mb_peak():.2f}")
     
 if __name__ == "__main__":
     main()

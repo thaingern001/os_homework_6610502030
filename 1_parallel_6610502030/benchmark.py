@@ -1,63 +1,78 @@
 import subprocess as sp
 import re
 from pathlib import Path
+import os
 
 RESULTS = Path("results")
 RESULTS.mkdir(exist_ok=True)
 CSV = RESULTS / "times.csv"
 
-# NS = []
-# for i in range(2,17):
-#     NS.append(10**i + 3)
-NS = [1_000_003, 10_000_019, 100_000_007]  # ตัวอย่าง n (แก้เพิ่มได้)
-PROCS_LIST = [1, 2, 4, 8]                   # จำนวน process สำหรับ MPI
+# สร้างชุด n = 10^i + 3  (i = 2..9)
+NS = [10**i + 3 for i in range(2, 10)]
 
-TIME_RE = re.compile(r"time\s*=\s*([0-9.]+)s")
+# จำนวน process สำหรับ MPI (ถ้าไม่อยากซ้ำ serial ให้ตัด 1 ออก)
+PROCS_LIST = [1, 2, 4, 8]
 
-def run_serial(n: int) -> float:
-    env = {"N": str(n), **dict(**os_environ())}
-    out = sp.run(["python3", "serial_factor.py"], env=env, capture_output=True, text=True, check=True).stdout
-    m = TIME_RE.search(out)
-    if not m:
-        raise RuntimeError(f"Cannot parse time from serial output:\n{out}")
-    return float(m.group(1))
+# regex จับค่าเวลาและหน่วยความจำจาก stdout (rank 0)
+TIME_RE     = re.compile(r"time\s*=\s*([0-9.]+)s")
+MEM_MAX_RE  = re.compile(r"mem_max_mb\s*=\s*([0-9.]+)")
+MEM_AVG_RE  = re.compile(r"mem_avg_mb\s*=\s*([0-9.]+)")  # อาจไม่มีใน serial
 
-def run_mpi(n: int, procs: int) -> float:
-    env = {"N": str(n), **dict(**os_environ())}
-    # ใช้ entrypoint ของ mpi4py ให้ชัวร์ว่าอยู่ใน env ที่ถูกต้อง
-    out = sp.run(["mpiexec", "-n", str(procs), "python3", "-m", "mpi4py", "mpi_factor.py"],
+def parse_time_mem(out: str):
+    """คืน (time_s, mem_max_mb, mem_avg_mb or None) จาก stdout ของโปรแกรม"""
+    mt = TIME_RE.search(out)
+    if not mt:
+        raise RuntimeError(f"Cannot parse time from output:\n{out}")
+    t = float(mt.group(1))
+
+    mm = MEM_MAX_RE.search(out)
+    mem_max = float(mm.group(1)) if mm else None
+
+    ma = MEM_AVG_RE.search(out)
+    mem_avg = float(ma.group(1)) if ma else None
+
+    return t, mem_max, mem_avg
+
+def run_serial(n: int):
+    env = os.environ.copy()
+    env["N"] = str(n)
+    out = sp.run(["python3", "serial_factor.py"],
                  env=env, capture_output=True, text=True, check=True).stdout
-    # เวลาอยู่ที่ rank 0 เท่านั้น
-    m = TIME_RE.search(out)
-    if not m:
-        raise RuntimeError(f"Cannot parse time from MPI output:\n{out}")
-    return float(m.group(1))
+    return parse_time_mem(out)
 
-def os_environ():
-    # ป้องกันกรณีที่มี environment แปลก ๆ ในบางระบบ
-    import os
-    return os.environ
+def run_mpi(n: int, procs: int):
+    env = os.environ.copy()
+    env["N"] = str(n)
+    out = sp.run(
+        ["mpiexec", "-n", str(procs), "python3", "-m", "mpi4py", "mpi_factor.py"],
+        env=env, capture_output=True, text=True, check=True
+    ).stdout
+    return parse_time_mem(out)
 
-def append_csv(mode: str, n: int, procs: int, t: float):
+def append_csv(mode: str, n: int, procs: int, t: float, mem_max, mem_avg):
     header_needed = not CSV.exists()
     with CSV.open("a", encoding="utf-8") as f:
         if header_needed:
-            f.write("mode,n,procs,time_s\n")
-        f.write(f"{mode},{n},{procs},{t:.6f}\n")
+            f.write("mode,n,procs,time_s,mem_max_mb,mem_avg_mb\n")
+        # แปลง None เป็นว่าง เพื่ออ่าน CSV ได้ง่าย
+        mem_max_str = "" if mem_max is None else f"{mem_max:.6f}"
+        mem_avg_str = "" if mem_avg is None else f"{mem_avg:.6f}"
+        f.write(f"{mode},{n},{procs},{t:.6f},{mem_max_str},{mem_avg_str}\n")
 
 if __name__ == "__main__":
     print("== Benchmark serial vs MPI ==")
+
     # Serial
     for n in NS:
-        t = run_serial(n)
-        append_csv("serial", n, 1, t)
-        print(f"serial  n={n:<10}  time={t:.6f}s")
+        t, mem_max, mem_avg = run_serial(n)
+        append_csv("serial", n, 1, t, mem_max, mem_avg)
+        print(f"serial  n={n:<10}  time={t:.6f}s  mem_max={mem_max}MB")
 
     # MPI
     for n in NS:
         for p in PROCS_LIST:
-            t = run_mpi(n, p)
-            append_csv("mpi", n, p, t)
-            print(f"mpi     n={n:<10}  procs={p:<2}  time={t:.6f}s")
+            t, mem_max, mem_avg = run_mpi(n, p)
+            append_csv("mpi", n, p, t, mem_max, mem_avg)
+            print(f"mpi     n={n:<10}  procs={p:<2}  time={t:.6f}s  mem_max={mem_max}MB  mem_avg={mem_avg}MB")
 
     print(f"\nSaved -> {CSV.resolve()}")
