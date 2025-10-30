@@ -1,6 +1,4 @@
 
----
-````markdown
 # 🧮 Parallel Factorization with MPI4Py
 
 โปรเจกต์นี้เป็นส่วนหนึ่งของรายวิชา **Intro to Parallel Programming**  
