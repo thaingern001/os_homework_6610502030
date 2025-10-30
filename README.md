@@ -86,5 +86,4 @@
 ### ✍️ จัดทำโดย
 **Thaingern Pinta**  
 Computer Engineering, Kasetsart University  
-MIKE LAB — Large Knowledge and Information Engineering Laboratory  
 📧 thaingern.p@ku.th  
