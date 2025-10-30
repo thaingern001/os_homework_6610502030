@@ -7,16 +7,16 @@ RESULTS = Path("results")
 RESULTS.mkdir(exist_ok=True)
 CSV = RESULTS / "times.csv"
 
-# สร้างชุด n = 10^i + 3  (i = 2..9)
-NS = [10**i + 3 for i in range(2, 10)]
+# สร้างชุด n = 10^i + 3  
+NS = [10**i + 3 for i in range(2, 17)]
 
-# จำนวน process สำหรับ MPI (ถ้าไม่อยากซ้ำ serial ให้ตัด 1 ออก)
+# จำนวน process สำหรับ MPI 
 PROCS_LIST = [1, 2, 4, 8]
 
-# regex จับค่าเวลาและหน่วยความจำจาก stdout (rank 0)
+# regex stdout (rank 0)
 TIME_RE     = re.compile(r"time\s*=\s*([0-9.]+)s")
 MEM_MAX_RE  = re.compile(r"mem_max_mb\s*=\s*([0-9.]+)")
-MEM_AVG_RE  = re.compile(r"mem_avg_mb\s*=\s*([0-9.]+)")  # อาจไม่มีใน serial
+MEM_AVG_RE  = re.compile(r"mem_avg_mb\s*=\s*([0-9.]+)")  
 
 def parse_time_mem(out: str):
     """คืน (time_s, mem_max_mb, mem_avg_mb or None) จาก stdout ของโปรแกรม"""
@@ -54,7 +54,7 @@ def append_csv(mode: str, n: int, procs: int, t: float, mem_max, mem_avg):
     with CSV.open("a", encoding="utf-8") as f:
         if header_needed:
             f.write("mode,n,procs,time_s,mem_max_mb,mem_avg_mb\n")
-        # แปลง None เป็นว่าง เพื่ออ่าน CSV ได้ง่าย
+        
         mem_max_str = "" if mem_max is None else f"{mem_max:.6f}"
         mem_avg_str = "" if mem_avg is None else f"{mem_avg:.6f}"
         f.write(f"{mode},{n},{procs},{t:.6f},{mem_max_str},{mem_avg_str}\n")
