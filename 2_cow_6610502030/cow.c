@@ -22,6 +22,8 @@ int main(int argc, char** argv){
     size_t bytes = meg * 1024ull * 1024ull;
     size_t pagesz = sysconf(_SC_PAGESIZE);
 
+    printf("=== Allocate %zu MB (%zu kB), page size=%zu kB ===\n", meg, bytes/1024, pagesz/1024);
+
     uint8_t* buf = malloc(bytes);
     if( !buf ){ 
         perror("malloc"); 
@@ -59,5 +61,6 @@ int main(int argc, char** argv){
         int st=0; waitpid(pid,&st,0);
         printf("[parent] after wait VmRSS(kB)=%zu\n", get_rss_kb(getpid()));
     }
+    printf("\n");
     return 0;
 }

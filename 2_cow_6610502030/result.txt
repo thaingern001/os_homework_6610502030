@@ -1,0 +1,57 @@
+gcc -O2 -Wall -o cow cow.c
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 0% VmRSS(kB)=896
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 25% VmRSS(kB)=13568
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 50% VmRSS(kB)=26368
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 100% VmRSS(kB)=51968
+=== Allocate 50 MB (51200 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 0% VmRSS(kB)=896
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 25% VmRSS(kB)=26368
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 50% VmRSS(kB)=51968
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[child] init VmRSS(kB)=640
+[child] after write 100% VmRSS(kB)=103168
+=== Allocate 100 MB (102400 kB), page size=4 kB ===
+[parent] before wait VmRSS(kB)=1536
+[parent] after wait VmRSS(kB)=1536
+
