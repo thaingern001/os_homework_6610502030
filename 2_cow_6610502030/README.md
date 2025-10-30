@@ -118,7 +118,6 @@ make                # คอมไพล์โปรแกรม
 
 **Thaingern Pinta**
 Computer Engineering, Kasetsart University
-MIKE LAB — Large Knowledge and Information Engineering Laboratory
 
 ```
 
